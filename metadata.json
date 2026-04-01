@@ -1,0 +1,9 @@
+{
+  "name": "Travel Snap & Map",
+  "description": "Capture travel moments, organize photos in folders, and discover nearby attractions with Google Maps and YouTube integration.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
