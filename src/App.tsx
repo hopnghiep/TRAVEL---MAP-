@@ -32,6 +32,7 @@ import Markdown from 'react-markdown';
 import { Map, Marker, Overlay } from "pigeon-maps";
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { Tour, type Step } from './components/Tour';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -54,6 +55,7 @@ interface FolderType {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'camera' | 'gallery' | 'explore'>('camera');
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [viewingFolderId, setViewingFolderId] = useState<number | null>(null);
   const [folders, setFolders] = useState<FolderType[]>([]);
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
@@ -185,6 +187,51 @@ export default function App() {
       startCamera();
     }
   }, [facingMode]);
+
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+      localStorage.setItem('hasSeenOnboarding', 'true');
+    }
+  }, []);
+
+  const onboardingSteps: Step[] = [
+    {
+      icon: '👋',
+      title: 'Chào mừng bạn!',
+      content: 'Chào mừng bạn đến với TravelSnap - ứng dụng lưu giữ khoảnh khắc du lịch của bạn bằng AI.',
+      selector: 'body',
+    },
+    {
+      icon: '📸',
+      title: 'Chụp ảnh',
+      content: 'Đây là nơi bạn bắt đầu. Nhấn vào biểu tượng máy ảnh để chụp những khoảnh khắc đẹp nhất.',
+      selector: '#step-camera-tab',
+      side: 'top',
+    },
+    {
+      icon: '📁',
+      title: 'Thư viện',
+      content: 'Quản lý toàn bộ ảnh của bạn tại đây, sắp xếp theo thư mục thông minh.',
+      selector: '#step-gallery-tab',
+      side: 'top',
+    },
+    {
+      icon: '🌍',
+      title: 'Khám phá',
+      content: 'Xem lại vị trí ảnh trên bản đồ và nhận các gợi ý địa điểm xung quanh bằng AI.',
+      selector: '#step-explore-tab',
+      side: 'top',
+    },
+    {
+      icon: '✨',
+      title: 'Sẵn sàng chưa?',
+      content: 'Hãy bắt đầu hành trình của bạn ngay bây giờ!',
+      selector: '#step-camera-tab',
+      side: 'top',
+    }
+  ];
 
   const stopCamera = () => {
     if (videoRef.current && videoRef.current.srcObject) {
@@ -563,6 +610,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 font-sans pb-20">
+      <Tour 
+        steps={onboardingSteps} 
+        open={showOnboarding} 
+        onComplete={() => setShowOnboarding(false)} 
+      />
       {/* Header */}
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-stone-200 px-6 py-4 flex justify-between items-center">
         <div className="flex items-center gap-2">
@@ -1254,6 +1306,7 @@ export default function App() {
       {/* Navigation Bar */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-stone-200 px-8 py-4 flex justify-around items-center z-40">
         <button 
+          id="step-camera-tab"
           onClick={() => setActiveTab('camera')}
           className={cn(
             "flex flex-col items-center gap-1 transition-all",
@@ -1264,6 +1317,7 @@ export default function App() {
           <span className="text-[10px] font-bold uppercase tracking-widest">Máy ảnh</span>
         </button>
         <button 
+          id="step-explore-tab"
           onClick={() => setActiveTab('explore')}
           className={cn(
             "flex flex-col items-center gap-1 transition-all",
@@ -1274,6 +1328,7 @@ export default function App() {
           <span className="text-[10px] font-bold uppercase tracking-widest">Khám phá</span>
         </button>
         <button 
+          id="step-gallery-tab"
           onClick={() => {
             setActiveTab('gallery');
             setViewingFolderId(null);
